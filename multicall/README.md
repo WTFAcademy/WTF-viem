@@ -1,8 +1,8 @@
 # Multicall
 
-借助 [multicall3 合约](https://github.com/mds1/multicall) 在单个 RPC 中批量调用多个合约 `view` 函数
+借助 [multicall3 合约](https://github.com/mds1/multicall) 将多个合约 `view` 调用汇总到一个或多个 `eth_call` 请求中。Multicall3 在链上执行子调用，JSON-RPC 批处理则只在传输层合并独立请求。
 
-通常，我们想调用合约的 `view` 函数时，每一次查询对应一次 RPC 调用，但假如使用的 RPC 不稳定，就容易导致我们批量查询结果不完整，这时 Multicall 的优势就体现出来了
+逐个读取会产生多个 RPC 请求。Viem 可按请求大小分批，以减少请求数。
 
 ## 演示
 
@@ -80,4 +80,4 @@ const aggregate3Results = await Promise.allSettled(
 );
 ```
 
-使用 [Multicall](https://viem.sh/docs/contract/multicall) 可以减少 RPC 调用次数，避免批量查询数据不完整。目前只在 viem 和 ethers-rs 有专门接口封装，可以算是优于 ethers 的一个 feature
+默认情况下，逐项检查 [Multicall](https://viem.sh/docs/contract/multicall) 返回的 `status` 和 `error`。如果业务要求任意一项失败时整次读取报错，请传入 `allowFailure: false`。

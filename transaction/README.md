@@ -1,6 +1,6 @@
 # Transaction
 
-发送交易上链
+启动本地 Anvil 节点，并将启动时显示的一个测试私钥设为 `ANVIL_PRIVATE_KEY`。运行 `npx tsx transaction/index.ts` 会准备并签名一笔本地测试交易，输出序列化结果。
 
 ### 直接发送交易上链
 
@@ -8,8 +8,7 @@
 const hash = await walletClient.sendTransaction({ 
   account,
   to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
-  value
-: 1000000000000000000n
+  value: 1000000000000000000n
 })
 ```
 
@@ -31,14 +30,15 @@ const request = await walletClient.prepareTransactionRequest({
 })
 ```
 
-我们在填写了 from, to, value 字段后调用 `prepareTransactionRequest` 函数，会向节点发起 RPC 请求获取交易其他字段的值，从而将交易的字段填写完整，结果如下
+我们在填写了 account、to 和 value 字段后调用 `prepareTransactionRequest` 函数，会向节点发起 RPC 请求获取交易其他字段的值，从而将交易的字段填写完整，结果如下
 
 ```typescript
 {
-  account: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  account, // privateKeyToAccount 返回的本地账户
   to: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
   maxFeePerGas: 150000000000n,
   maxPriorityFeePerGas: 1000000000n,
+  gas: 21000n,
   nonce: 69,
   type: 'eip1559',
   value: 1000000000000000000n
@@ -50,7 +50,7 @@ const request = await walletClient.prepareTransactionRequest({
 获取了交易请求后，需要对交易进行签名
 
 ```typescript
-const signature = await walletClient.signTransaction(request)
+const serializedTransaction = await walletClient.signTransaction(request)
 // 0x02f850018203118080825208808080c080a04012522854168b27e5dc3d5839bab5e6b39e1a0ffd343901ce1622e3d64b48f1a04e00902ae0502c4728cbf12156290df99c3ed7de85b1dbfe20b5c36931733a33
 ```
 
@@ -59,22 +59,9 @@ const signature = await walletClient.signTransaction(request)
 在对交易请求签名后，就可以广播上链了
 
 ```typescript
-const hash = await walletClient.sendRawTransaction({ serializedTransaction: signature })
+const hash = await walletClient.sendRawTransaction({ serializedTransaction })
 ```
 
 总结：所以 `sendTransaction` 其实是对上述 3 步的封装
 
-## 快速打铭文的思考
-
-在了解了交易从构造到广播上链的过程后，不知道友友们有没有想到如何更快的打铭文呢
-
-在使用一些批量打铭文工具时（例如 OKX Wallet 的批量打铭文功能）我们用的其实是 `sendTransaction` 只不过是包在一个循环体内
-
-那么我们每打一次铭文，就要调用一次 `prepareTransactionRequest` 函数（进行一次 RPC 调用）来补齐其他参数。在一些非主流链打过铭文的朋友肯定都知道，当打铭文热度高时 RPC 是极其不稳定的，所以我们是不是可以使用拆分发送交易的方式，来减少构造交易请求时的 RPC 调用呢。
-
-要知道，打铭文本质是自己给自己转账，一个区块内的不同转账交易，只有 nonce 字段不同（递增），在相邻的几个区块，往往 gas 变化不大
-
-我们可以先本地构建好交易请求，再一次批量打包发送到链上，是不是会高效很多
-
-代码可以参考 [这里](./index.ts) 
-
+[可运行示例](./index.ts)演示构造和签名。广播时可将签名后的序列化交易传给上面的 `sendRawTransaction`。
