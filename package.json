@@ -4,12 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "transaction": "tsx transaction/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "viem": "^2.7.10"
+    "viem": "2.58.6"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
   }
 }

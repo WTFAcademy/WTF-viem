@@ -1,6 +1,6 @@
 # Transaction
 
-启动本地 Anvil 节点，并将启动时显示的一个测试私钥设为 `ANVIL_PRIVATE_KEY`。运行 `npx tsx transaction/index.ts` 会准备并签名一笔本地测试交易，输出序列化结果。
+启动本地 Anvil 节点，并将启动时显示的一个测试私钥设为 `ANVIL_PRIVATE_KEY`。在仓库根目录运行 `pnpm install --frozen-lockfile` 安装依赖，再运行 `pnpm transaction` 会准备并签名一笔本地测试交易，输出序列化结果。
 
 ### 直接发送交易上链
 
